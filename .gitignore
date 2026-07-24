@@ -1,0 +1,25 @@
+# Secrets — NEVER commit (contains a live You.com API key)
+.mcp.json
+*.env
+.env
+.env.*
+
+# Vendored, self-tracked repositories (have their own .git)
+DeepCode/
+youcom-agent-starter-kit/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Caches
+.cache/
+.pytest_cache/
+.DS_Store
