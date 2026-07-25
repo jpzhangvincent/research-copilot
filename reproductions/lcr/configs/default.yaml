@@ -1,0 +1,29 @@
+# LCR reproduction — default experiment config (paper §4).
+# Used by `python run.py --config configs/default.yaml` for the real run.
+
+dataset: nfcorpus        # BEIR dataset (nfcorpus is small/fast; also scifact, trec-covid)
+data_dir: ./datasets
+split: test
+
+retriever: bm25          # bm25 | contriever
+reranker: retriever_only # retriever_only | qlm | yesno | rankgpt | cross_encoder | rankt5 | colbert
+top_k: 10                # candidates retrieved + reranked per query
+ndcg_k: 5                # primary metric: NDCG@5
+max_queries: null        # cap #queries for a quick run (null = all)
+
+# Confidence LLM (MSCP backend). Paper uses a 7-9B pretrained model.
+model:
+  backend: vllm          # vllm | hf
+  name: Qwen/Qwen2.5-7B-Instruct
+  device: cuda
+
+# MSCP sampling (paper Sec 3.1): K multinomial samples at temperature T=1.
+sampling:
+  K: 10
+  temperature: 1.0
+
+# LCR thresholds (paper Sec 3.2 / 4.2 — grid-searched per dataset+reranker).
+thresholds:
+  t_query: 0.5           # if C(q) >= t_query, LCR reverts to base ranking (safe lower bound)
+  t_upper: 0.7           # C(q,d) >= t_upper  -> bin +1 (high confidence)
+  t_lower: 0.3           # C(q,d) <= t_lower  -> bin -1 (low confidence)

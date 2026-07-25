@@ -1,0 +1,17 @@
+# --- Core (smoke run: `python run.py --smoke`) ---
+numpy>=1.24
+rank_bm25>=0.2.2          # pure-Python BM25 fallback backend
+
+# --- Full reproduction (real BEIR run + confidence LLM) ---
+# Confidence LLM backends (choose one):
+# vllm>=0.4.0             # recommended, GPU
+# torch>=2.1             # required by transformers/vllm/contriever
+# transformers>=4.40     # HF fallback backend + Contriever + RankT5/ColBERT
+
+# Datasets / eval:
+# beir>=2.0.0            # downloads BEIR datasets (NFCorpus, SciFact, …)
+# pyserini>=0.22.0       # Lucene-backed BM25 (optional, alternative to rank_bm25)
+
+# Optional rerankers:
+# sentence-transformers>=2.2.0   # cross-encoder reranker
+# PyYAML>=6.0                    # reading configs/default.yaml for the real run
