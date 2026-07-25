@@ -1,324 +1,205 @@
 {
-  "summary": "This graph centres on two recent confidence-aware reranking ideas for RAG: LLM-Confidence Reranker (LCR), which derives a black-box confidence signal from Maximum Semantic Cluster Proportion (MSCP) and reranks candidates in a training-free way, and CAR, which uses generator-side confidence change to do query-guided, uncertainty-aware reranking. Both are evaluated mainly on BEIR-style retrieval benchmarks, with LCR also using TREC, and both report NDCG@5 improvements; CAR additionally links ranking gains to downstream generation F1. The graph also includes the main LLM reranking baselines and surrounding concepts that shape the landscape: listwise reranking methods such as RankGPT, RankZephyr, and FIRST; fine-grained pointwise scoring such as Beyond Yes and No; classic learning-to-rank methods like RankT5; and strong cross-encoder baselines like BGE-Reranker-Large and GTE-7B. Evaluation infrastructure and judge-style concepts are represented by RankArena and RAGPerf.",
+  "summary": "The landscape centers on two recent reranking directions for RAG. LLM-Confidence Reranker (LCR) is a training-free reranker that derives an LLM confidence signal via MSCP, using multinomial sampling and clustering to prioritize documents while preserving rankings for high-confidence queries. It is evaluated on BEIR and TREC with BM25 and Contriever, and reports gains in NDCG@5 versus pretrained LLM rerankers and fine-tuned transformer rerankers. RRPO is a reinforcement-learning approach that uses LLM feedback to optimize rerankers, evaluated on AmbigNQ and HotpotQA with EM and F1, and compared against several off-the-shelf rerankers plus RAG baselines such as FLARE and DRAGIN.",
   "nodes": [
     {
-      "id": "paper:lcr",
+      "id": "paper:llm-confidence-reranker",
       "label": "LLM-Confidence Reranker",
       "type": "paper",
-      "detail": "Training-free, plug-and-play confidence reranker for RAG; uses black-box LLM confidence via MSCP and binning-based reordering.",
-      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0957417426005403"
+      "detail": "LLM-Confidence Reranker: A Training-Free Approach for Enhancing Retrieval-Augmented Generation Systems; by Zhipeng Song, Xiangyu Kong, Xinrui Bao, Yizhi Zhou, Jiulong Jiao, Sitong Liu, Yuhang Zhou, Heng Qi.",
+      "url": "https://arxiv.org/abs/2602.13571"
     },
     {
       "id": "method:lcr",
       "label": "LCR",
       "type": "method",
-      "detail": "The LCR algorithm; confidence assessment via multinomial sampling and semantic clustering, then confidence-aware sorting.",
+      "detail": "LLM-Confidence Reranker (LCR), a training-free, plug-and-play reranking algorithm for RAG that uses black-box LLM confidence to reorder retrieved documents.",
       "url": ""
     },
     {
-      "id": "concept:llm_confidence",
+      "id": "paper:rrpo",
+      "label": "RRPO paper",
+      "type": "paper",
+      "detail": "Optimizing RAG Rerankers with LLM Feedback via Reinforcement Learning; evaluates RRPO on QA benchmarks against several rerankers and RAG baselines.",
+      "url": ""
+    },
+    {
+      "id": "method:rrpo",
+      "label": "RRPO",
+      "type": "method",
+      "detail": "RRPO, a reinforcement-learning optimization framework for rerankers using LLM feedback.",
+      "url": ""
+    },
+    {
+      "id": "concept:llm-confidence",
       "label": "LLM confidence",
       "type": "concept",
-      "detail": "Black-box confidence signal extracted from semantic consistency of sampled outputs.",
+      "detail": "Confidence derived from an LLM\u2019s generation behavior and used as a signal for reranking relevance.",
       "url": ""
     },
     {
       "id": "concept:mscp",
-      "label": "Maximum Semantic Cluster Proportion",
+      "label": "MSCP",
       "type": "concept",
-      "detail": "Maximum Semantic Cluster Proportion, the confidence metric introduced for LCR.",
+      "detail": "Maximum Semantic Cluster Proportion, the confidence signal used by LCR.",
+      "url": ""
+    },
+    {
+      "id": "concept:multinomial-sampling",
+      "label": "Multinomial sampling",
+      "type": "concept",
+      "detail": "Multinomial sampling used by LCR to assess confidence before clustering and sorting.",
+      "url": ""
+    },
+    {
+      "id": "concept:clustering",
+      "label": "Clustering",
+      "type": "concept",
+      "detail": "Clustering step used by LCR to group sampled outputs before binning and multi-level sorting.",
+      "url": ""
+    },
+    {
+      "id": "concept:llm-feedback",
+      "label": "LLM feedback",
+      "type": "concept",
+      "detail": "LLM-generated feedback used as a learning signal in RRPO.",
+      "url": ""
+    },
+    {
+      "id": "concept:reinforcement-learning",
+      "label": "Reinforcement learning",
+      "type": "concept",
+      "detail": "Optimization paradigm used by RRPO.",
       "url": ""
     },
     {
       "id": "dataset:beir",
       "label": "BEIR",
       "type": "dataset",
-      "detail": "BEIR benchmark suite used to evaluate reranking quality.",
+      "detail": "BEIR benchmark used to evaluate LCR.",
       "url": ""
     },
     {
       "id": "dataset:trec",
       "label": "TREC",
       "type": "dataset",
-      "detail": "TREC benchmarks used in evaluation.",
+      "detail": "TREC benchmark used to evaluate LCR.",
+      "url": ""
+    },
+    {
+      "id": "dataset:ambignq",
+      "label": "AmbigNQ",
+      "type": "dataset",
+      "detail": "AmbigNQ dataset used to evaluate RRPO, with full training set and validation set.",
+      "url": ""
+    },
+    {
+      "id": "dataset:hotpotqa",
+      "label": "HotpotQA",
+      "type": "dataset",
+      "detail": "HotpotQA dataset used to evaluate RRPO, with full training set and validation set.",
       "url": ""
     },
     {
       "id": "method:bm25",
       "label": "BM25",
       "type": "method",
-      "detail": "Classic sparse lexical retriever used in LCR experiments.",
+      "detail": "BM25 retriever used as a retrieval baseline and input to both LCR and RRPO experiments.",
       "url": ""
     },
     {
       "id": "method:contriever",
       "label": "Contriever",
       "type": "method",
-      "detail": "Dense retriever used in LCR experiments.",
+      "detail": "Contriever retriever used with LCR experiments.",
       "url": ""
     },
     {
       "id": "metric:ndcg5",
       "label": "NDCG@5",
       "type": "metric",
-      "detail": "Ranking metric improved by LCR, reported up to 20.6% relative gain.",
+      "detail": "NDCG@5, the key ranking metric reported for LCR.",
       "url": ""
     },
     {
-      "id": "method:pretrained_llm_rerankers",
-      "label": "Pre-trained LLM rerankers",
-      "type": "method",
-      "detail": "Pre-trained LLM-based rerankers used as comparison baselines for LCR.",
-      "url": ""
-    },
-    {
-      "id": "method:fine_tuned_transformer_rerankers",
-      "label": "Fine-tuned Transformer rerankers",
-      "type": "method",
-      "detail": "Fine-tuned Transformer rerankers used as comparison baselines for LCR.",
-      "url": ""
-    },
-    {
-      "id": "paper:car",
-      "label": "CAR",
-      "type": "paper",
-      "detail": "Query-guided confidence-aware reranking method for RAG.",
-      "url": ""
-    },
-    {
-      "id": "method:car",
-      "label": "CAR",
-      "type": "method",
-      "detail": "Confidence-Aware Reranking; uses generator-side confidence changes to decide promotions/demotions.",
-      "url": ""
-    },
-    {
-      "id": "concept:generator_confidence",
-      "label": "Generator confidence",
-      "type": "concept",
-      "detail": "Confidence signal based on the generator's response stability under sampling.",
-      "url": ""
-    },
-    {
-      "id": "concept:uncertainty_aware_reranking",
-      "label": "Uncertainty-aware reranking",
-      "type": "concept",
-      "detail": "Reranking objective that optimizes for usefulness to generation, not just relevance.",
-      "url": ""
-    },
-    {
-      "id": "method:yesno_reranker",
-      "label": "YesNo reranker",
-      "type": "method",
-      "detail": "YesNo reranker used as a comparison baseline in CAR experiments.",
-      "url": ""
-    },
-    {
-      "id": "method:supervised_neural_rerankers",
-      "label": "Supervised neural rerankers",
-      "type": "method",
-      "detail": "Supervised neural rerankers used as comparison baselines in CAR experiments.",
-      "url": ""
-    },
-    {
-      "id": "paper:rankgpt",
-      "label": "RankGPT",
-      "type": "paper",
-      "detail": "Zero-shot listwise LLM reranker from 2023, a key recent LLM ranking baseline.",
-      "url": ""
-    },
-    {
-      "id": "method:rankgpt",
-      "label": "RankGPT",
-      "type": "method",
-      "detail": "LLM listwise ranking method that directly generates an ordered document list.",
-      "url": ""
-    },
-    {
-      "id": "paper:rankzephyr",
-      "label": "RankZephyr",
-      "type": "paper",
-      "detail": "Zero-shot listwise LLM reranker emphasizing robust prompting.",
-      "url": ""
-    },
-    {
-      "id": "method:rankzephyr",
-      "label": "RankZephyr",
-      "type": "method",
-      "detail": "Listwise reranking method based on open-source LLMs.",
-      "url": ""
-    },
-    {
-      "id": "paper:first",
-      "label": "FIRST",
-      "type": "paper",
-      "detail": "EMNLP 2024 listwise reranking method that decodes a ranking with a single token.",
-      "url": ""
-    },
-    {
-      "id": "method:first",
-      "label": "FIRST",
-      "type": "method",
-      "detail": "Single-token decoding for faster improved listwise reranking.",
-      "url": ""
-    },
-    {
-      "id": "paper:beyond_yes_and_no",
-      "label": "Beyond Yes and No",
-      "type": "paper",
-      "detail": "NAACL 2024 work improving zero-shot LLM rankers by scoring fine-grained labels.",
-      "url": ""
-    },
-    {
-      "id": "method:fine_grained_relevance_labels",
-      "label": "Fine-grained relevance scoring",
-      "type": "method",
-      "detail": "Pointwise scoring with fine-grained relevance labels.",
-      "url": ""
-    },
-    {
-      "id": "paper:rankt5",
-      "label": "RankT5",
-      "type": "paper",
-      "detail": "Text ranking model fine-tuned with ranking losses.",
-      "url": ""
-    },
-    {
-      "id": "method:rankt5",
-      "label": "RankT5",
-      "type": "method",
-      "detail": "Learning-to-rank method based on T5.",
-      "url": ""
-    },
-    {
-      "id": "paper:bge_reranker_large",
-      "label": "BGE-Reranker-Large",
-      "type": "paper",
-      "detail": "Strong open-source cross-encoder reranker used as a modern baseline.",
-      "url": ""
-    },
-    {
-      "id": "method:bge_reranker_large",
-      "label": "BGE-Reranker-Large",
-      "type": "method",
-      "detail": "Cross-encoder reranking model.",
-      "url": ""
-    },
-    {
-      "id": "paper:gte_7b",
-      "label": "GTE-7B Reranker",
-      "type": "paper",
-      "detail": "Proprietary state-of-the-art reranker used in comparisons.",
-      "url": ""
-    },
-    {
-      "id": "method:gte_7b_reranker",
-      "label": "GTE-7B reranker",
-      "type": "method",
-      "detail": "Large cross-encoder reranker model.",
-      "url": ""
-    },
-    {
-      "id": "concept:llm_as_judge",
-      "label": "LLM-as-a-judge",
-      "type": "concept",
-      "detail": "LLM-as-a-judge evaluation paradigm for preferences and reranking assessment.",
-      "url": ""
-    },
-    {
-      "id": "paper:rankarena",
-      "label": "RankArena",
-      "type": "paper",
-      "detail": "Unified platform for evaluating retrieval, reranking, and RAG with human and LLM feedback.",
-      "url": ""
-    },
-    {
-      "id": "dataset:human_llm_feedback",
-      "label": "Human and LLM feedback",
-      "type": "dataset",
-      "detail": "Human and LLM feedback annotations used for head-to-head evaluation.",
-      "url": ""
-    },
-    {
-      "id": "paper:ragperf",
-      "label": "RAGPerf",
-      "type": "paper",
-      "detail": "End-to-end benchmarking framework for RAG systems with retriever/reranker abstractions.",
-      "url": ""
-    },
-    {
-      "id": "dataset:rag_benchmarks",
-      "label": "RAG benchmarks",
-      "type": "dataset",
-      "detail": "Generic benchmark collection for end-to-end RAG evaluation.",
-      "url": ""
-    },
-    {
-      "id": "concept:listwise_reranking",
-      "label": "Listwise reranking",
-      "type": "concept",
-      "detail": "Listwise reranking paradigm that ranks candidate documents jointly.",
-      "url": ""
-    },
-    {
-      "id": "concept:pointwise_reranking",
-      "label": "Pointwise reranking",
-      "type": "concept",
-      "detail": "Pointwise reranking paradigm that scores each document independently.",
-      "url": ""
-    },
-    {
-      "id": "concept:learning_to_rank",
-      "label": "Learning to rank",
-      "type": "concept",
-      "detail": "Classic information retrieval objective underlying RankT5-style methods.",
-      "url": ""
-    },
-    {
-      "id": "concept:cross_encoder_reranking",
-      "label": "Cross-encoder reranking",
-      "type": "concept",
-      "detail": "Cross-encoder paradigm where query and document are jointly encoded.",
-      "url": ""
-    },
-    {
-      "id": "concept:semantic_entropy",
-      "label": "Semantic entropy",
-      "type": "concept",
-      "detail": "Semantically clustered-output uncertainty idea that motivates MSCP.",
-      "url": ""
-    },
-    {
-      "id": "metric:generation_f1",
-      "label": "generation f1",
+      "id": "metric:em",
+      "label": "EM",
       "type": "metric",
-      "detail": "",
+      "detail": "Exact Match, used to evaluate RRPO on QA benchmarks.",
       "url": ""
     },
     {
-      "id": "method:beyond_yes_and_no",
-      "label": "beyond yes and no",
+      "id": "metric:f1",
+      "label": "F1",
+      "type": "metric",
+      "detail": "F1 score, used to evaluate RRPO on QA benchmarks.",
+      "url": ""
+    },
+    {
+      "id": "method:pretrained-llm-rerankers",
+      "label": "Pretrained LLM rerankers",
       "type": "method",
-      "detail": "",
+      "detail": "Pretrained LLM rerankers used as comparison targets in LCR experiments.",
       "url": ""
     },
     {
-      "id": "concept:end_to_end_rag_evaluation",
-      "label": "end to end rag evaluation",
-      "type": "concept",
-      "detail": "",
+      "id": "method:fine-tuned-transformer-rerankers",
+      "label": "Fine-tuned transformer rerankers",
+      "type": "method",
+      "detail": "Fine-tuned transformer rerankers used as comparison targets in LCR experiments.",
+      "url": ""
+    },
+    {
+      "id": "method:gte-reranker",
+      "label": "gte reranker",
+      "type": "method",
+      "detail": "gte-multilingual-reranker-base baseline in RRPO experiments.",
+      "url": ""
+    },
+    {
+      "id": "method:jina-reranker-v2-multilingual",
+      "label": "jina reranker",
+      "type": "method",
+      "detail": "jina-reranker-v2-multilingual baseline in RRPO experiments.",
+      "url": ""
+    },
+    {
+      "id": "method:bge-reranker-base",
+      "label": "bge reranker",
+      "type": "method",
+      "detail": "bge-reranker-base baseline in RRPO experiments.",
+      "url": ""
+    },
+    {
+      "id": "method:qwen3-reranker-0_6b",
+      "label": "qwen3 reranker",
+      "type": "method",
+      "detail": "Qwen3-reranker-0.6B baseline in RRPO experiments.",
+      "url": ""
+    },
+    {
+      "id": "method:flare",
+      "label": "FLARE",
+      "type": "method",
+      "detail": "FLARE, a RAG baseline referenced for broader context in RRPO experiments.",
+      "url": ""
+    },
+    {
+      "id": "method:dragin",
+      "label": "DRAGIN",
+      "type": "method",
+      "detail": "DRAGIN, a RAG baseline referenced for broader context in RRPO experiments.",
       "url": ""
     }
   ],
   "edges": [
     {
-      "source": "paper:lcr",
+      "source": "paper:llm-confidence-reranker",
       "target": "method:lcr",
       "relation": "proposes"
     },
     {
       "source": "method:lcr",
-      "target": "concept:llm_confidence",
+      "target": "concept:llm-confidence",
       "relation": "uses_concept"
     },
     {
@@ -327,267 +208,142 @@
       "relation": "uses_concept"
     },
     {
-      "source": "paper:lcr",
+      "source": "method:lcr",
+      "target": "concept:multinomial-sampling",
+      "relation": "uses_concept"
+    },
+    {
+      "source": "method:lcr",
+      "target": "concept:clustering",
+      "relation": "uses_concept"
+    },
+    {
+      "source": "paper:llm-confidence-reranker",
       "target": "dataset:beir",
       "relation": "evaluates_on"
     },
     {
-      "source": "paper:lcr",
+      "source": "paper:llm-confidence-reranker",
       "target": "dataset:trec",
       "relation": "evaluates_on"
     },
     {
-      "source": "paper:lcr",
+      "source": "paper:llm-confidence-reranker",
       "target": "method:bm25",
       "relation": "uses_retriever"
     },
     {
-      "source": "paper:lcr",
+      "source": "paper:llm-confidence-reranker",
       "target": "method:contriever",
       "relation": "uses_retriever"
-    },
-    {
-      "source": "paper:lcr",
-      "target": "metric:ndcg5",
-      "relation": "improves_metric"
-    },
-    {
-      "source": "paper:lcr",
-      "target": "method:pretrained_llm_rerankers",
-      "relation": "compared_to"
-    },
-    {
-      "source": "paper:lcr",
-      "target": "method:fine_tuned_transformer_rerankers",
-      "relation": "compared_to"
-    },
-    {
-      "source": "paper:car",
-      "target": "method:car",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:car",
-      "target": "concept:generator_confidence",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "method:car",
-      "target": "concept:uncertainty_aware_reranking",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "paper:car",
-      "target": "dataset:beir",
-      "relation": "evaluates_on"
-    },
-    {
-      "source": "paper:car",
-      "target": "method:bm25",
-      "relation": "uses_retriever"
-    },
-    {
-      "source": "paper:car",
-      "target": "method:contriever",
-      "relation": "uses_retriever"
-    },
-    {
-      "source": "paper:car",
-      "target": "metric:ndcg5",
-      "relation": "improves_metric"
-    },
-    {
-      "source": "paper:car",
-      "target": "metric:generation_f1",
-      "relation": "improves_metric"
-    },
-    {
-      "source": "paper:car",
-      "target": "method:yesno_reranker",
-      "relation": "compared_to"
-    },
-    {
-      "source": "paper:car",
-      "target": "method:supervised_neural_rerankers",
-      "relation": "compared_to"
-    },
-    {
-      "source": "paper:rankgpt",
-      "target": "method:rankgpt",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:rankgpt",
-      "target": "concept:listwise_reranking",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "paper:rankgpt",
-      "target": "dataset:beir",
-      "relation": "evaluates_on"
-    },
-    {
-      "source": "paper:rankzephyr",
-      "target": "method:rankzephyr",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:rankzephyr",
-      "target": "concept:listwise_reranking",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "paper:first",
-      "target": "method:first",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:first",
-      "target": "concept:listwise_reranking",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "paper:beyond_yes_and_no",
-      "target": "method:fine_grained_relevance_labels",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:beyond_yes_and_no",
-      "target": "concept:pointwise_reranking",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "paper:rankt5",
-      "target": "method:rankt5",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:rankt5",
-      "target": "concept:learning_to_rank",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "paper:bge_reranker_large",
-      "target": "method:bge_reranker_large",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:bge_reranker_large",
-      "target": "concept:cross_encoder_reranking",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "paper:gte_7b",
-      "target": "method:gte_7b_reranker",
-      "relation": "proposes"
-    },
-    {
-      "source": "method:gte_7b_reranker",
-      "target": "concept:cross_encoder_reranking",
-      "relation": "uses_concept"
-    },
-    {
-      "source": "method:car",
-      "target": "method:lcr",
-      "relation": "builds_on"
     },
     {
       "source": "method:lcr",
-      "target": "concept:semantic_entropy",
-      "relation": "builds_on"
+      "target": "metric:ndcg5",
+      "relation": "improves_metric"
     },
     {
-      "source": "method:car",
-      "target": "concept:llm_as_judge",
-      "relation": "builds_on"
+      "source": "method:lcr",
+      "target": "method:pretrained-llm-rerankers",
+      "relation": "compared_to"
     },
     {
-      "source": "paper:rankarena",
-      "target": "concept:llm_as_judge",
+      "source": "method:lcr",
+      "target": "method:fine-tuned-transformer-rerankers",
+      "relation": "compared_to"
+    },
+    {
+      "source": "paper:rrpo",
+      "target": "method:rrpo",
+      "relation": "proposes"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "concept:llm-feedback",
       "relation": "uses_concept"
     },
     {
-      "source": "paper:rankarena",
-      "target": "dataset:beir",
-      "relation": "evaluates_on"
-    },
-    {
-      "source": "paper:rankarena",
-      "target": "dataset:human_llm_feedback",
-      "relation": "evaluates_on"
-    },
-    {
-      "source": "paper:ragperf",
-      "target": "concept:end_to_end_rag_evaluation",
+      "source": "method:rrpo",
+      "target": "concept:reinforcement-learning",
       "relation": "uses_concept"
     },
     {
-      "source": "paper:ragperf",
-      "target": "dataset:rag_benchmarks",
+      "source": "paper:rrpo",
+      "target": "dataset:ambignq",
       "relation": "evaluates_on"
+    },
+    {
+      "source": "paper:rrpo",
+      "target": "dataset:hotpotqa",
+      "relation": "evaluates_on"
+    },
+    {
+      "source": "paper:rrpo",
+      "target": "method:bm25",
+      "relation": "uses_retriever"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "method:gte-reranker",
+      "relation": "compared_to"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "method:jina-reranker-v2-multilingual",
+      "relation": "compared_to"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "method:bge-reranker-base",
+      "relation": "compared_to"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "method:qwen3-reranker-0_6b",
+      "relation": "compared_to"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "metric:em",
+      "relation": "improves_metric"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "metric:f1",
+      "relation": "improves_metric"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "method:flare",
+      "relation": "compared_to"
+    },
+    {
+      "source": "method:rrpo",
+      "target": "method:dragin",
+      "relation": "compared_to"
     }
   ],
   "sources": [
     {
-      "title": "How Good are LLM-based Rerankers? An Empirical ...",
-      "url": "https://aclanthology.org/2025.findings-emnlp.305.pdf",
-      "snippet": ""
-    },
-    {
-      "title": "RankArena: A Unified Platform for Evaluating Retrieval, Reranking ...",
-      "url": "https://arxiv.org/html/2508.05512v1",
-      "snippet": ""
-    },
-    {
-      "title": "LLM-confidence reranker: A training-free approach for enhancing ...",
-      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0957417426005403",
-      "snippet": ""
-    },
-    {
-      "title": "CAR: Query-Guided Confidence-Aware Reranking for Retrieval-Augmented ...",
-      "url": "https://arxiv.org/html/2605.04495v1",
-      "snippet": ""
-    },
-    {
-      "title": "How Good are LLM-based Rerankers? An Empirical Analysis of ...",
-      "url": "https://arxiv.org/html/2508.16757v1",
-      "snippet": ""
-    },
-    {
-      "title": "LANCER: LLM Reranking for Nugget Coverage | Springer Nature Link",
-      "url": "https://link.springer.com/chapter/10.1007/978-3-032-21300-6_12",
-      "snippet": ""
-    },
-    {
-      "title": "[2605.04495v1] CAR: Query-Guided Confidence-Aware Reranking for ...",
-      "url": "https://arxiv.org/abs/2605.04495v1",
+      "title": "Optimizing RAG Rerankers with LLM Feedback via Reinforcement Learning",
+      "url": "https://arxiv.org/html/2604.02091",
       "snippet": ""
     },
     {
       "title": "[2602.13571] LLM-Confidence Reranker: A Training-Free Approach ...",
       "url": "https://arxiv.org/abs/2602.13571",
       "snippet": ""
-    },
-    {
-      "title": "RAGPerf: An End-to-End Benchmarking Framework for Retrieval-Augmented ...",
-      "url": "https://arxiv.org/html/2603.10765v1",
-      "snippet": ""
-    },
-    {
-      "title": "LLM-Confidence Reranker: A Training-Free Approach for Enhancing ...",
-      "url": "https://arxiv.org/html/2602.13571",
-      "snippet": ""
     }
   ],
   "topic": "LLM confidence reranker for RAG",
   "seed": "",
   "effort": "standard",
-  "elapsed": 29.9,
+  "elapsed": 31.6,
   "cached": false,
-  "generated_at": "2026-07-25T01:23:26Z",
+  "generated_at": "2026-07-25T01:37:42Z",
   "spend": {
-    "total": 0.12,
-    "search": 4,
-    "research": 2
+    "total": 0.235,
+    "search": 7,
+    "research": 4
   }
 }

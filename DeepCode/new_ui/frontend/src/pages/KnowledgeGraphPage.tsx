@@ -76,7 +76,11 @@ export default function KnowledgeGraphPage() {
     setCompilingUrl(node.url);
     try {
       const res = await copilotApi.compileWiki(node.url, 'llm-agents', graph?.topic);
-      toast.success('Added to wiki', res.rel_path);
+      if (res.cached) {
+        toast.info('Loaded from cache', `${res.rel_path} (no You.com/LLM calls)`);
+      } else {
+        toast.success('Added to wiki', res.rel_path);
+      }
     } catch {
       toast.error('Librarian failed', 'Could not compile this paper.');
     } finally {

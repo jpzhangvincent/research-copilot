@@ -8,6 +8,7 @@ with index.md and log.md updated. Files are Obsidian-compatible markdown.
 from __future__ import annotations
 
 import datetime as _dt
+import json
 import os
 import re
 from pathlib import Path
@@ -18,6 +19,9 @@ from services import youcom_service
 _BACKEND_SERVICES_DIR = Path(__file__).resolve().parent
 _YOUHACK_ROOT = _BACKEND_SERVICES_DIR.parents[3]  # …/youhack
 _WIKI_ROOT = _YOUHACK_ROOT / "wiki"
+# Maps a paper URL to its already-compiled article so re-runs are instant
+# (no You.com contents fetch, no LLM call) — see the `use_cache` flag below.
+_CACHE_FILE = _WIKI_ROOT / ".librarian_cache.json"
 
 # By default the Librarian uses the subscription-backed shim (zero API cost).
 # Override COPILOT_WIKI_BASE_URL / COPILOT_WIKI_MODEL to use a real provider.
@@ -98,6 +102,89 @@ def _title_from_article(md: str, fallback: str) -> str:
     return fallback
 
 
+def _norm_url(url: str) -> str:
+    """Normalize a paper URL into a stable cache key.
+
+    arXiv abs/pdf links (and version suffixes) for the same paper collapse to
+    ``arxiv:<id>`` so a cache entry hits regardless of how the URL was surfaced.
+    """
+    u = (url or "").strip().lower()
+    m = re.search(r"arxiv\.org/(?:abs|pdf|html)/(\d{4}\.\d{4,5})", u)
+    if m:
+        return f"arxiv:{m.group(1)}"
+    return u.rstrip("/")
+
+
+def _load_cache() -> Dict[str, Any]:
+    try:
+        return json.loads(_CACHE_FILE.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def _save_cache(cache: Dict[str, Any]) -> None:
+    _WIKI_ROOT.mkdir(parents=True, exist_ok=True)
+    _CACHE_FILE.write_text(json.dumps(cache, indent=2, sort_keys=True) + "\n")
+
+
+def _seed_cache_from_disk(cache: Dict[str, Any]) -> Dict[str, Any]:
+    """Populate the manifest from existing articles' ``Raw:`` URLs.
+
+    Lets wikis compiled before the cache existed still be reused instantly.
+    """
+    if not _WIKI_ROOT.exists():
+        return cache
+    for md in _WIKI_ROOT.rglob("*.md"):
+        if md.name in ("index.md", "log.md"):
+            continue
+        try:
+            text = md.read_text()
+        except OSError:
+            continue
+        raw = re.search(r"^Raw:\s*(\S+)", text, flags=re.MULTILINE)
+        if not raw:
+            continue
+        key = _norm_url(raw.group(1))
+        if key in cache:
+            continue
+        rel_path = md.relative_to(_WIKI_ROOT).as_posix()
+        updated = re.search(r"^Updated:\s*(\S+)", text, flags=re.MULTILINE)
+        cache[key] = {
+            "rel_path": rel_path,
+            "title": _title_from_article(text, fallback=md.stem),
+            "topic": rel_path.split("/", 1)[0] if "/" in rel_path else "",
+            "updated": updated.group(1) if updated else None,
+            "url": raw.group(1),
+        }
+    return cache
+
+
+def _cached_article(paper_url: str) -> Optional[Dict[str, Any]]:
+    """Return a previously compiled article for this URL if it still exists."""
+    key = _norm_url(paper_url)
+    cache = _load_cache()
+    entry = cache.get(key)
+    if not entry:  # self-heal from articles that predate the manifest
+        cache = _seed_cache_from_disk(cache)
+        _save_cache(cache)
+        entry = cache.get(key)
+    if not entry:
+        return None
+    article_path = _WIKI_ROOT / entry["rel_path"]
+    if not article_path.exists():
+        return None
+    return {
+        "title": entry["title"],
+        "topic": entry["topic"],
+        "path": str(article_path),
+        "rel_path": entry["rel_path"],
+        "markdown": article_path.read_text().rstrip("\n"),
+        "wiki_root": str(_WIKI_ROOT),
+        "cached": True,
+        "cached_at": entry.get("updated"),
+    }
+
+
 def _ensure_wiki_skeleton() -> None:
     _WIKI_ROOT.mkdir(parents=True, exist_ok=True)
     index = _WIKI_ROOT / "index.md"
@@ -112,6 +199,11 @@ def _append_index(topic: str, title: str, rel_path: str, summary: str, today: st
     index = _WIKI_ROOT / "index.md"
     body = index.read_text()
     entry = f"- [{title}]({rel_path}) — {summary} _(Updated: {today})_\n"
+    # Idempotent: replace an existing line for this article rather than duplicating.
+    link = f"]({rel_path})"
+    if link in body:
+        lines = [ln for ln in body.splitlines(keepends=True) if link not in ln]
+        body = "".join(lines)
     section = f"## {topic}\n"
     if section in body:
         body = body.replace(section, section + entry, 1)
@@ -129,8 +221,19 @@ def _append_log(title: str, topic: str, rel_path: str, today: str) -> None:
 
 
 def compile_paper(paper_url: str, topic: str = "llm-agents",
-                  interest: Optional[str] = None) -> Dict[str, Any]:
-    """Compile a paper URL into a wiki article. Returns metadata + markdown."""
+                  interest: Optional[str] = None,
+                  use_cache: bool = True) -> Dict[str, Any]:
+    """Compile a paper URL into a wiki article. Returns metadata + markdown.
+
+    If ``use_cache`` is True (default) and this URL was compiled before and the
+    article file still exists, the cached article is returned instantly with
+    ``cached=True`` — skipping the You.com contents fetch and the LLM call.
+    """
+    if use_cache:
+        cached = _cached_article(paper_url)
+        if cached is not None:
+            return cached
+
     raw = youcom_service.contents([paper_url], fmt="markdown")
     page_text = _extract_page_text(raw)
     article_md = _openai_article(paper_url, page_text)
@@ -157,6 +260,12 @@ def compile_paper(paper_url: str, topic: str = "llm-agents",
     _append_index(topic, title, rel_path, summary or title, today)
     _append_log(title, topic, rel_path, today)
 
+    cache = _load_cache()
+    cache[_norm_url(paper_url)] = {"rel_path": rel_path, "title": title,
+                                   "topic": topic, "updated": today,
+                                   "url": paper_url}
+    _save_cache(cache)
+
     return {
         "title": title,
         "topic": topic,
@@ -164,4 +273,6 @@ def compile_paper(paper_url: str, topic: str = "llm-agents",
         "rel_path": rel_path,
         "markdown": article_md,
         "wiki_root": str(_WIKI_ROOT),
+        "cached": False,
+        "cached_at": None,
     }

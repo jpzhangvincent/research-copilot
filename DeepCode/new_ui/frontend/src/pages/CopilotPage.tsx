@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import {
   Search, BookOpen, Compass, Wrench, Loader2, CheckCircle,
-  XCircle, ArrowRight, FileText, Sparkles, Network,
+  XCircle, ArrowRight, FileText, Sparkles, Network, Database, RefreshCw,
 } from 'lucide-react';
 import { Card, Button } from '../components/common';
 import { ProgressTracker, ActivityLogViewer } from '../components/streaming';
@@ -108,14 +108,18 @@ export default function CopilotPage() {
     }
   };
 
-  const handleSelect = async (paper: PaperHit) => {
+  const handleSelect = async (paper: PaperHit, refresh = false) => {
     setSelected(paper);
     setCompiling(true);
     setStage('wiki');
     try {
-      const res = await copilotApi.compileWiki(paper.url, 'llm-agents', interest);
+      const res = await copilotApi.compileWiki(paper.url, 'llm-agents', interest, refresh);
       setWiki(res);
-      toast.success('Added to wiki', res.rel_path);
+      if (res.cached) {
+        toast.info('Loaded from cache', `${res.rel_path} (no You.com/LLM calls)`);
+      } else {
+        toast.success('Added to wiki', res.rel_path);
+      }
     } catch (err) {
       toast.error('Librarian failed', 'Wiki compile did not complete.');
       console.error(err);
@@ -337,9 +341,33 @@ export default function CopilotPage() {
               <BookOpen className="h-4 w-4 text-primary-600" /> Wiki article
             </h3>
             {wiki && (
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-[11px] text-gray-500">
-                wiki/{wiki.rel_path}
-              </span>
+              <div className="flex items-center gap-2">
+                {wiki.cached ? (
+                  <span
+                    title={wiki.cached_at ? `Cached ${wiki.cached_at}` : 'Served from cache'}
+                    className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700"
+                  >
+                    <Database className="h-3 w-3" /> Cached
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                    <Sparkles className="h-3 w-3" /> Fresh
+                  </span>
+                )}
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-[11px] text-gray-500">
+                  wiki/{wiki.rel_path}
+                </span>
+                {stage === 'wiki' && selected && (
+                  <button
+                    onClick={() => handleSelect(selected, true)}
+                    disabled={compiling}
+                    title="Recompile (bypass cache)"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 hover:text-primary-600 disabled:opacity-50"
+                  >
+                    <RefreshCw className="h-3 w-3" /> Recompile
+                  </button>
+                )}
+              </div>
             )}
           </div>
           {compiling ? (

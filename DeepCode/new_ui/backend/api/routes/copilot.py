@@ -70,6 +70,7 @@ class CompileRequest(BaseModel):
     paper_url: str
     topic: str = "llm-agents"
     interest: Optional[str] = None
+    refresh: bool = False  # force re-compile, bypassing the cache
 
 
 class CompileResponse(BaseModel):
@@ -79,6 +80,8 @@ class CompileResponse(BaseModel):
     path: str
     markdown: str
     wiki_root: str
+    cached: bool = False
+    cached_at: Optional[str] = None
 
 
 @router.post("/discover", response_model=DiscoverResponse)
@@ -112,6 +115,7 @@ async def compile_wiki(request: CompileRequest):
         result = await asyncio.to_thread(
             librarian_service.compile_paper,
             request.paper_url, request.topic, request.interest,
+            not request.refresh,
         )
     except youcom_service.YouComError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc

@@ -280,6 +280,8 @@ export interface CompileResponse {
   path: string;
   markdown: string;
   wiki_root: string;
+  cached: boolean;
+  cached_at: string | null;
 }
 
 export interface PrebakedFile {
@@ -363,12 +365,14 @@ export const copilotApi = {
   compileWiki: async (
     paperUrl: string,
     topic: string = 'llm-agents',
-    interest?: string | null
+    interest?: string | null,
+    refresh: boolean = false
   ): Promise<CompileResponse> => {
     const response = await api.post<CompileResponse>('/copilot/wiki/compile', {
       paper_url: paperUrl,
       topic,
       interest: interest ?? null,
+      refresh,
     }, { timeout: 120000 });
     return response.data;
   },

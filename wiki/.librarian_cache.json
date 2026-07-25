@@ -1,0 +1,23 @@
+{
+  "arxiv:2602.13571": {
+    "rel_path": "llm-agents/llm-confidence-reranker-lcr.md",
+    "title": "LLM-Confidence Reranker (LCR)",
+    "topic": "llm-agents",
+    "updated": "2026-07-24",
+    "url": "https://arxiv.org/abs/2602.13571"
+  },
+  "arxiv:2604.02091": {
+    "rel_path": "llm-agents/reranking-preference-optimization-rrpo.md",
+    "title": "ReRanking Preference Optimization (RRPO)",
+    "topic": "llm-agents",
+    "updated": "2026-07-24",
+    "url": "https://arxiv.org/html/2604.02091"
+  },
+  "arxiv:2605.25847": {
+    "rel_path": "llm-agents/coordinated-energymobility-dispatch-for-caev-grid-support-v2.md",
+    "title": "Coordinated Energy\u2013Mobility Dispatch for CAEV Grid Support (V2G)",
+    "topic": "llm-agents",
+    "updated": "2026-07-24",
+    "url": "https://arxiv.org/html/2605.25847"
+  }
+}
