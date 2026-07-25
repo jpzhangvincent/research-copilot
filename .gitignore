@@ -23,3 +23,6 @@ build/
 .cache/
 .pytest_cache/
 .DS_Store
+
+# Shim scratch dir (temp system prompts for the CLI backend)
+copilot_shim/.sandbox/
