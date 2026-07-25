@@ -4,8 +4,14 @@
 .env
 .env.*
 
-# Vendored, self-tracked repositories (have their own .git)
-DeepCode/
+# Vendored ENGINE (integral to this project): DeepCode — github.com/HKUDS/DeepCode.
+# Tracked as source. Its upstream git is neutralized to .git.upstream-HKUDS and
+# its virtualenv / runtime lab output are excluded to keep the repo lean.
+DeepCode/.git.upstream-HKUDS/
+DeepCode/deepcode_lab/
+DeepCode/deepcode_hku.egg-info/
+
+# Vendored REFERENCE (kept external): You.com agent starter kit — has its own .git.
 youcom-agent-starter-kit/
 
 # Python

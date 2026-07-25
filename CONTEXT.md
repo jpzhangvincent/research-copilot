@@ -1,12 +1,24 @@
-# Research Copilot
+# AI Research Copilot
 
-A personal AI research partner that discovers relevant papers, summarizes them into a personal wiki, and reproduces chosen papers as running code. Built for the You.com Agentic Hackathon; the demo hero is turning a discovered paper into a working reproduction.
+A personal AI research partner that discovers relevant papers, maps a field as a knowledge graph, summarizes papers into a personal wiki, and reproduces chosen papers as running code. Built for the You.com Agentic Hackathon; the demo hero is turning a discovered paper into a working reproduction.
 
 ## Language
 
-**Research Copilot**:
+**AI Research Copilot** (a.k.a. Research Copilot):
 The whole system — the personal AI research partner. The product name for everything in this repo.
-_Avoid_: "the app", "the assistant"
+_Avoid_: "the app", "the assistant", "DeepCode" (that names the vendored engine, not our product)
+
+**Knowledge Graph**:
+An interactive, typed map of a research area — nodes (papers, methods, datasets, metrics, concepts) and labeled relation edges — produced by the Cartographer from one You.com research call and rendered with reactflow.
+_Avoid_: "mind map", "diagram", "network" (ambiguous)
+
+**Landscape Brief**:
+The cited prose synthesis returned alongside the Knowledge Graph, summarizing the field. Shown next to the graph.
+_Avoid_: "summary" (ambiguous with Wiki article)
+
+**output_schema**:
+The JSON-Schema (subset) we hand to the You.com Research API so it returns the Knowledge Graph as structured JSON instead of prose. Supported on standard/deep/exhaustive, not lite.
+_Avoid_: "response format", "function schema"
 
 **Reproduction**:
 The act of turning a chosen paper into a running codebase on a real dataset. This is the demo climax. Powered by DeepCode's paper2code pipeline.
@@ -47,6 +59,10 @@ The Research Copilot is presented to the user as a team of named agents. These a
 **Scout**:
 The Discovery agent. Uses You.com Search tools to surface relevant recent papers from the user's interests.
 _Avoid_: "searcher", "crawler"
+
+**Cartographer**:
+The mapping agent. Runs one You.com research call with an output_schema to build the Knowledge Graph and Landscape Brief for an area. Lives in `graph_service.py`.
+_Avoid_: "grapher", "mapper"
 
 **Librarian**:
 The wiki agent. Compiles a discovered paper into a Wiki article (llm-wiki format), rendered in-app.
